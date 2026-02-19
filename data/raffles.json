@@ -1,0 +1,13 @@
+{
+  "raffles": [
+    {
+      "id": 1771538986795,
+      "round": 1,
+      "circuitId": "spa",
+      "circuitName": "Spa",
+      "date": "2026-02-19T22:09:46.795Z",
+      "revealed": true
+    }
+  ],
+  "currentRound": 2
+}

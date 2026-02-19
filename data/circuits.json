@@ -1,0 +1,133 @@
+{
+  "circuits": [
+    {
+      "id": "baku",
+      "name": "Circuito callejero de Bakú",
+      "country": "Azerbaiyán",
+      "length": "6.003 km",
+      "turns": 20,
+      "megaLink": "https://mega.nz/file/3wJ3WKoD#fGxTSEXnHd4tO0XkQ9Jo1kgieMPiKsIhBX3yZn30Hk0"
+    },
+    {
+      "id": "rusia",
+      "name": "Autódromo de Sochi",
+      "country": "Rusia",
+      "length": "5.848 km",
+      "turns": 18,
+      "megaLink": "https://mega.nz/file/qxwSRbLK#xSu83dis_QVVs0AjdgtkwYr0sjkBzFLcZgyLuWx_DHo"
+    },
+    {
+      "id": "brasil",
+      "name": "Autódromo José Carlos Pace (Interlagos)",
+      "country": "Brasil",
+      "length": "4.309 km",
+      "turns": 15,
+      "megaLink": "https://mega.nz/file/HwYTgYwY#fFcq9qhin3KNgJGzTL3esPyWroCvtB2FW1etMUqgzcQ"
+    },
+    {
+      "id": "canada",
+      "name": "Circuito Gilles Villeneuve",
+      "country": "Canadá",
+      "length": "4.361 km",
+      "turns": 14,
+      "megaLink": "https://mega.nz/file/voQhWL6I#_UBEgAKcNKeZE_JkZGrqA5SnqM469VKpAgQ0jP2ur-s"
+    },
+    {
+      "id": "mexico",
+      "name": "Autódromo Hermanos Rodríguez",
+      "country": "México",
+      "length": "4.304 km",
+      "turns": 17,
+      "megaLink": "https://mega.nz/file/Hsh1wAzB#sesEdIg9gpx6pIjURzxmvloCaSIC_Dt_3PmavLWzhzQ"
+    },
+    {
+      "id": "silverstone",
+      "name": "Circuito de Silverstone",
+      "country": "Reino Unido",
+      "length": "5.891 km",
+      "turns": 18,
+      "megaLink": "https://mega.nz/file/7wBC1aiI#9Moii2Ixxro2SCHqPbl3JK5DzCj6VlkRbwWORBQBal0"
+    },
+    {
+      "id": "cota",
+      "name": "Circuito de las Américas (COTA)",
+      "country": "Estados Unidos",
+      "length": "5.513 km",
+      "turns": 20,
+      "megaLink": "https://mega.nz/file/nhZEzbCD#419e9KscGkPcZSFH40esqEqzhDvsyVoNCuHN_ksMVp4"
+    },
+    {
+      "id": "miami",
+      "name": "Autódromo Internacional de Miami",
+      "country": "Estados Unidos",
+      "length": "5.412 km",
+      "turns": 19,
+      "megaLink": "https://mega.nz/file/z9ABRbgL#sPvQkTX1ojCHOeJs7Ui6YEVQ5x8u4EAespGq04ugHxw"
+    },
+    {
+      "id": "austria",
+      "name": "Red Bull Ring",
+      "country": "Austria",
+      "length": "4.318 km",
+      "turns": 10,
+      "megaLink": "https://mega.nz/file/bkQ0mCxQ#ZGkwjnckbwO6crC_xNXbQiGvonQMIS3xuj4_ya5IZcE"
+    },
+    {
+      "id": "bahrein",
+      "name": "Circuito Internacional de Baréin",
+      "country": "Baréin",
+      "length": "5.412 km",
+      "turns": 15,
+      "megaLink": "https://mega.nz/file/zxwylSrS#im01gDk-fVqMCUDEY4bXqeThrs1T_jxusi1JU8yiJ6Q"
+    },
+    {
+      "id": "yas_marina",
+      "name": "Circuito Yas Marina",
+      "country": "Emiratos Árabes",
+      "length": "5.554 km",
+      "turns": 16,
+      "megaLink": "https://mega.nz/file/igJ3BJQJ#jtmGXQXv_26Yg2x0z-Ki6iWnmu4UjrPIFtLymi3_O4U"
+    },
+    {
+      "id": "turquia",
+      "name": "Circuito de Estambul",
+      "country": "Turquía",
+      "length": "5.338 km",
+      "turns": 14,
+      "megaLink": "https://mega.nz/file/6hRxxCxS#8MD2ps1DyirrOO8vRYX5Oi4qC_h1ENH4xOm0Pa8FDjk"
+    },
+    {
+      "id": "pgo",
+      "name": "PGO",
+      "country": "Ficticio",
+      "length": "4.653 km",
+      "turns": 15,
+      "description": "Circuito ficticio de Assetto Corsa",
+      "megaLink": "https://mega.nz/file/L5Y0mZSL#nzdS07TRGf_hgOGd1EdQI0_XOx4HCW8he0vo7EV208w"
+    },
+    {
+      "id": "spa",
+      "name": "circuito de Spa-Francorchamps",
+      "country": "Bélgica",
+      "length": "7.004 km",
+      "turns": 19,
+      "megaLink": "https://mega.nz/file/HlgDyBgB#piUaPjhKHWaOdq87bSL5syeqZpwxIdcpCMfn0o-L250"
+    },
+    {
+      "id": "francia",
+      "name": "Circuito Paul Ricard",
+      "country": "Francia",
+      "length": "5.842 km",
+      "turns": 15,
+      "megaLink": "https://mega.nz/file/K8pBHBKK#zYTcKRRKf2-HdzaY8hKFSvb5k_Teuf342XvknLGwYOs"
+    },
+    {
+      "id": "monza",
+      "name": "Autodromo Nazionale di Monza",
+      "country": "Italia",
+      "length": "5.793 km",
+      "turns": 11,
+      "megaLink": "https://mega.nz/file/CpR3FY5Y#SeJi7RjELGwgglFA5aFGFu81f7RSwsBCFqIovCHYiMQ"
+    }
+  ]
+}
