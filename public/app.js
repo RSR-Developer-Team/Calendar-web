@@ -4,6 +4,23 @@ let rafflesData = null;
 let countdownInterval = null;
 let hasRevealedThisSession = false;
 
+// Initialize Socket.io
+const socket = io();
+
+// Listen for global raffle event
+socket.on('raffleStarted', (data) => {
+  if (data && data.circuit) {
+    // If the animation is already running for this client, don't trigger it again
+    if (!document.getElementById('slotMachine').classList.contains('hidden')) return;
+
+    startRaffleAnimation(data.circuit);
+  }
+});
+
+socket.on('raffleError', (data) => {
+  alert(data.error);
+});
+
 const audioContext = new (window.AudioContext || window.webkitAudioContext)();
 
 function playTickSound() {
@@ -154,7 +171,7 @@ function showRaffleButton() {
 
   document.getElementById('countdownContainer').classList.add('hidden');
   document.getElementById('preRaffle').classList.add('hidden');
-  document.getElementById('raffleBtn').classList.remove('hidden');
+  document.getElementById('raffleWaiting').classList.remove('hidden');
 
   updateServerStatus('pending', 'LISTO PARA SORTEAR');
 }
@@ -169,18 +186,18 @@ function updateServerStatus(status, text) {
 
 function renderCircuitsGrid() {
   const grid = document.getElementById('circuitsGrid');
-  const usedCircuitIds = rafflesData?.raffles?.map(r => r.circuitId) || [];
+  grid.innerHTML = circuits.map(circuit => {
+    const usedRaffle = rafflesData?.raffles?.find(r => r.circuitId === circuit.id);
+    const isUsed = !!usedRaffle;
+    const roundAttr = isUsed ? `data-round="Ronda ${usedRaffle.round}"` : '';
 
-  grid.innerHTML = circuits.map(circuit => `
-    <div class="circuit-card ${usedCircuitIds.includes(circuit.id) ? 'used' : ''}" data-id="${circuit.id}">
-      <svg class="circuit-silhouette" viewBox="0 0 100 100">
-        <path d="M20,80 Q30,20 50,30 T80,50 Q90,70 70,80 T20,80" 
-              fill="none" stroke="currentColor" stroke-width="3"/>
-      </svg>
+    return `
+    <div class="circuit-card ${isUsed ? 'used' : ''}" data-id="${circuit.id}" ${roundAttr}>
+      <img src="img/circuits/${circuit.id}.svg" class="circuit-layout" alt="Trazado de ${circuit.name}" onerror="this.style.display='none'">
       <div class="circuit-name">${circuit.name}</div>
       <div class="circuit-country">${circuit.country}</div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function renderCalendar() {
@@ -200,16 +217,21 @@ function renderCalendar() {
 
     let status, statusClass, circuitName, circuitClass;
 
-    if (roundDateEnd < now) {
+    if (raffle && raffle.circuitName) {
+      status = 'Sorteado';
+      statusClass = 'completed';
+      circuitName = raffle.circuitName;
+      circuitClass = '';
+    } else if (roundDateEnd < now) {
       status = 'Finalizado';
       statusClass = 'completed';
-      circuitName = raffle?.circuitName || 'N/A';
+      circuitName = 'N/A';
       circuitClass = '';
     } else if (roundDate.toDateString() === now.toDateString()) {
       status = 'Hoy';
       statusClass = 'today';
-      circuitName = raffle?.circuitName || '¿?';
-      circuitClass = raffle ? '' : 'secret';
+      circuitName = '¿?';
+      circuitClass = 'secret';
     } else {
       status = 'Próximamente';
       statusClass = 'upcoming';
@@ -231,17 +253,19 @@ function renderCalendar() {
   tbody.innerHTML = rows.join('');
 }
 
-async function startRaffleAnimation() {
+async function startRaffleAnimation(finalCircuit) {
   const availableCircuits = circuits.filter(c =>
     !rafflesData?.raffles?.some(r => r.circuitId === c.id)
   );
 
-  if (availableCircuits.length === 0) {
-    alert('No hay circuitos disponibles para sortear');
+  // Fallback to ensuring the finalCircuit is in the list
+  if (availableCircuits.length === 0 && !finalCircuit) {
     return;
   }
 
-  document.getElementById('raffleBtn').classList.add('hidden');
+  document.getElementById('raffleWaiting').classList.add('hidden');
+  document.getElementById('countdownContainer').classList.add('hidden');
+  document.getElementById('preRaffle').classList.add('hidden');
 
   const slotMachine = document.getElementById('slotMachine');
   const slotReel = document.getElementById('slotReel');
@@ -251,15 +275,26 @@ async function startRaffleAnimation() {
   const itemsPerView = 10;
 
   let reelContent = '';
+  // Populate animation items
+  const slotsPool = availableCircuits.length > 0 ? availableCircuits : circuits;
   for (let i = 0; i < totalSpins + itemsPerView; i++) {
-    const circuit = availableCircuits[i % availableCircuits.length];
+    const circuit = slotsPool[i % slotsPool.length];
     reelContent += `<div class="slot-item">${circuit.name}</div>`;
   }
+  // Guarantee the last visible item is the winner
+  reelContent += `<div class="slot-item" style="color: var(--accent-primary);">${finalCircuit.name}</div>`;
+  // Add some padding items
+  for (let i = 0; i < 5; i++) {
+    reelContent += `<div class="slot-item">${slotsPool[i % slotsPool.length].name}</div>`;
+  }
+
   slotReel.innerHTML = reelContent;
 
   let currentPosition = 0;
   let spinIndex = 0;
   const itemHeight = 120;
+
+  audioContext.resume().catch(() => { });
 
   const tickInterval = setInterval(() => {
     playTickSound();
@@ -270,24 +305,20 @@ async function startRaffleAnimation() {
     slotReel.style.transform = `translateY(-${currentPosition}px)`;
     spinIndex++;
 
-    if (spinIndex >= totalSpins) {
+    if (spinIndex >= totalSpins + itemsPerView) {
       clearInterval(spinInterval);
       clearInterval(tickInterval);
 
       setTimeout(async () => {
         slotMachine.classList.add('hidden');
 
-        const result = await postAPI('raffle');
-
-        if (result && result.success) {
-          hasRevealedThisSession = true;
-          showResult(result.circuit);
-          rafflesData = await fetchAPI('raffles');
-          renderCircuitsGrid();
-          renderCalendar();
-          updateServerStatus('revealed', 'CIRCUITO REVELADO');
-          playRevealSound();
-        }
+        hasRevealedThisSession = true;
+        showResult(finalCircuit);
+        rafflesData = await fetchAPI('raffles');
+        renderCircuitsGrid();
+        renderCalendar();
+        updateServerStatus('revealed', 'CIRCUITO REVELADO');
+        playRevealSound();
       }, 500);
     }
   }, 80);
@@ -351,7 +382,7 @@ async function checkExistingRaffle() {
   if (todayRaffle) {
     document.getElementById('countdownContainer').classList.add('hidden');
     document.getElementById('preRaffle').classList.add('hidden');
-    document.getElementById('raffleBtn').classList.add('hidden');
+    document.getElementById('raffleWaiting').classList.add('hidden');
 
     const circuit = circuits.find(c => c.id === todayRaffle.circuitId);
     if (circuit) {
@@ -365,6 +396,8 @@ async function checkExistingRaffle() {
 
   if (currentRaffleDate && !hasRevealedThisSession) {
     showRaffleButton();
+  } else if (!todayRaffle) {
+    updateServerStatus('revealed', 'SERVIDOR ACTIVO');
   }
 }
 
@@ -374,7 +407,16 @@ async function init() {
   rafflesData = await fetchAPI('raffles');
 
   if (config) {
-    document.getElementById('championshipName').textContent = config.championshipName || 'RSR';
+    if (config.championshipName) {
+      const parts = config.championshipName.split(' ');
+      if (parts.length > 1) {
+        document.getElementById('championshipName').innerHTML = `<span class="logo-highlight">${parts[0]}</span><span class="logo-secondary">${parts.slice(1).join(' ')}</span>`;
+      } else {
+        document.getElementById('championshipName').innerHTML = `<span class="logo-highlight">${config.championshipName}</span>`;
+      }
+    } else {
+      document.getElementById('championshipName').innerHTML = `<span class="logo-highlight">RSR</span>`;
+    }
     document.getElementById('totalRounds').textContent = config.totalRounds || config.dates?.length || 10;
     document.getElementById('raffleTimeDisplay').textContent = config.raffleTime || '20:00';
 
@@ -400,12 +442,6 @@ async function init() {
   countdownInterval = setInterval(updateCountdown, 1000);
 
   checkExistingRaffle();
-
-  document.getElementById('raffleBtn').addEventListener('click', () => {
-    audioContext.resume().then(() => {
-      startRaffleAnimation();
-    });
-  });
 }
 
 document.addEventListener('DOMContentLoaded', init);
