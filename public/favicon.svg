@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="neonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ff0055"/>
+      <stop offset="100%" stop-color="#8a2be2"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="2" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <!-- Background -->
+  <rect width="100" height="100" rx="20" fill="#0f0f13"/>
+  <!-- Glowing border -->
+  <rect width="96" height="96" x="2" y="2" rx="18" fill="none" stroke="url(#neonGrad)" stroke-width="4" filter="url(#glow)"/>
+  
+  <!-- Text -->
+  <text x="50%" y="58%" font-family="system-ui, -apple-system, sans-serif" font-weight="900" font-size="38" font-style="italic" fill="#ffffff" text-anchor="middle" dominant-baseline="middle" letter-spacing="-1">RSR</text>
+  
+  <!-- Speed/Racing line accent -->
+  <path d="M 25 78 L 85 78 L 75 84 L 15 84 Z" fill="url(#neonGrad)" opacity="0.9"/>
+</svg>
