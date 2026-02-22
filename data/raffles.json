@@ -1,21 +1,4 @@
 {
-  "raffles": [
-    {
-      "id": 1771538986795,
-      "round": 1,
-      "circuitId": "spa",
-      "circuitName": "circuito de Spa-Francorchamps",
-      "date": "2026-02-19T22:09:46.795Z",
-      "revealed": true
-    },
-    {
-      "id": 1771538986795,
-      "round": 2,
-      "circuitId": "pgo",
-      "circuitName": "PGO",
-      "date": "2026-02-19T22:09:46.795Z",
-      "revealed": true
-    }
-  ],
+  "raffles": [],
   "currentRound": 1
 }
