@@ -4,8 +4,14 @@ let rafflesData = null;
 let countdownInterval = null;
 let hasRevealedThisSession = false;
 
+// Determine backend URL
+// If running locally, connect to localhost:3000. Give priority to Render URL for GitHub Pages.
+const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:3000'
+  : 'https://TU_RENDER_URL_AQUI.onrender.com'; // TODO: Replace with your actual Render backend URL
+
 // Initialize Socket.io
-const socket = io();
+const socket = io(BACKEND_URL);
 
 // Listen for global raffle event
 socket.on('raffleStarted', (data) => {
@@ -59,7 +65,7 @@ function playRevealSound() {
 
 async function fetchAPI(endpoint) {
   try {
-    const response = await fetch(`/api/${endpoint}`);
+    const response = await fetch(`${BACKEND_URL}/api/${endpoint}`);
     return await response.json();
   } catch (error) {
     console.error(`Error fetching ${endpoint}:`, error);
@@ -69,7 +75,7 @@ async function fetchAPI(endpoint) {
 
 async function postAPI(endpoint, data = {}) {
   try {
-    const response = await fetch(`/api/${endpoint}`, {
+    const response = await fetch(`${BACKEND_URL}/api/${endpoint}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
