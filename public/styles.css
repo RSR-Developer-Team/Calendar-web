@@ -833,6 +833,53 @@ main {
     flex-direction: column;
     gap: 15px;
   }
+
+  .circuits-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+  }
+
+  .slot-item {
+    font-size: 1.5rem;
+  }
+
+  .hero-right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .section-title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .circuits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .countdown {
+    gap: 5px;
+  }
+
+  .countdown-item {
+    padding: 8px 10px;
+    min-width: 50px;
+  }
+
+  .countdown-value {
+    font-size: 1.2rem;
+  }
+
+  .countdown-separator {
+    font-size: 1.5rem;
+  }
+
+  .calendar-table th,
+  .calendar-table td {
+    padding: 10px;
+    font-size: 0.8rem;
+  }
 }
 
 @keyframes glitch {
