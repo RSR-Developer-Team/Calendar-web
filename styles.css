@@ -834,6 +834,16 @@ main {
     gap: 15px;
   }
 
+  .reveal-frame {
+    padding: 20px;
+  }
+
+  .circuit-name {
+    font-size: 0.9rem;
+    word-break: break-word;
+    white-space: normal;
+  }
+
   .circuits-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 15px;
@@ -855,30 +865,35 @@ main {
 
 @media (max-width: 480px) {
   .circuits-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .countdown {
-    gap: 5px;
+    gap: 3px;
   }
 
   .countdown-item {
-    padding: 8px 10px;
-    min-width: 50px;
+    padding: 6px 6px;
+    min-width: 45px;
   }
 
   .countdown-value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
   }
 
   .countdown-separator {
-    font-size: 1.5rem;
+    font-size: 1.2rem;
+  }
+
+  .reveal-frame {
+    padding: 15px;
   }
 
   .calendar-table th,
   .calendar-table td {
-    padding: 10px;
-    font-size: 0.8rem;
+    padding: 6px 4px;
+    font-size: 0.7rem;
   }
 }
 
