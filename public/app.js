@@ -8,7 +8,7 @@ let hasRevealedThisSession = false;
 // If running locally, connect to localhost:3000. Give priority to Render URL for GitHub Pages.
 const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3000'
-  : 'https://TU_RENDER_URL_AQUI.onrender.com'; // TODO: Replace with your actual Render backend URL
+  : 'https://ws-rs-calendar.onrender.com'; // Backend URL provided by Render
 
 // Initialize Socket.io
 const socket = io(BACKEND_URL);
