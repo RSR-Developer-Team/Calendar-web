@@ -269,6 +269,10 @@ async function startRaffleAnimation(finalCircuit) {
     return;
   }
 
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+
   document.getElementById('raffleWaiting').classList.add('hidden');
   document.getElementById('countdownContainer').classList.add('hidden');
   document.getElementById('preRaffle').classList.add('hidden');
@@ -334,6 +338,10 @@ function showResult(circuit) {
   const resultContainer = document.getElementById('resultContainer');
   const resultCircuit = document.getElementById('resultCircuit');
   const resultDetails = document.getElementById('resultDetails');
+
+  document.getElementById('raffleWaiting').classList.add('hidden');
+  document.getElementById('countdownContainer').classList.add('hidden');
+  document.getElementById('preRaffle').classList.add('hidden');
 
   resultCircuit.textContent = circuit.name;
 

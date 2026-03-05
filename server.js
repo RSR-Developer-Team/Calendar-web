@@ -50,15 +50,19 @@ cron.schedule('* * * * *', () => {
 
   const now = new Date();
 
+  // Get current time in Madrid timezone
+  const madridTimeStr = now.toLocaleString("en-US", { timeZone: "Europe/Madrid" });
+  const madridNow = new Date(madridTimeStr);
+
   // Format current time as HH:MM to match config.raffleTime
-  const currentHours = String(now.getHours()).padStart(2, '0');
-  const currentMinutes = String(now.getMinutes()).padStart(2, '0');
+  const currentHours = String(madridNow.getHours()).padStart(2, '0');
+  const currentMinutes = String(madridNow.getMinutes()).padStart(2, '0');
   const currentTimeStr = `${currentHours}:${currentMinutes}`;
 
   // Create local date string matching YYYY-MM-DD
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
+  const year = madridNow.getFullYear();
+  const month = String(madridNow.getMonth() + 1).padStart(2, '0');
+  const day = String(madridNow.getDate()).padStart(2, '0');
   const currentDateStr = `${year}-${month}-${day}`;
 
   // Check if today is a race day and time matches
@@ -68,7 +72,11 @@ cron.schedule('* * * * *', () => {
     const rafflesData = readJSON(RAFFLES_FILE) || { raffles: [], currentRound: 1 };
 
     const todayRaffle = rafflesData.raffles.find(r => {
-      const raffleDate = new Date(r.date);
+      // Parse raffle date in Madrid timezone for fair comparison
+      const raffleDateRaw = new Date(r.date);
+      const raffleMadridStr = raffleDateRaw.toLocaleString("en-US", { timeZone: "Europe/Madrid" });
+      const raffleDate = new Date(raffleMadridStr);
+
       return raffleDate.getFullYear() === year &&
         String(raffleDate.getMonth() + 1).padStart(2, '0') === month &&
         String(raffleDate.getDate()).padStart(2, '0') === day;
