@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 
@@ -24,6 +25,12 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
+app.get('/config.js', (req, res) => {
+  const backendUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+  res.type('application/javascript');
+  res.send(`window.BACKEND_URL = "${backendUrl}";`);
+});
+
 const CIRCUITS_FILE = path.join(__dirname, 'data', 'circuits.json');
 const RAFFLES_FILE = path.join(__dirname, 'data', 'raffles.json');
 
@@ -38,12 +45,20 @@ function writeJSON(file, data) {
 
 // --- Database Setup ---
 const pool = new Pool({
-  user: 'postgres',
-  host: 'localhost',
-  database: 'postgres', // Default db, user might need to change this
-  password: 'password', // Default password for local dev
-  port: 5432,
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL && process.env.DATABASE_URL.includes('render.com')
+    ? { rejectUnauthorized: false }
+    : false
 });
+
+// Fallback for local development if DATABASE_URL is not set
+if (!process.env.DATABASE_URL) {
+  pool.options.user = 'postgres';
+  pool.options.host = 'localhost';
+  pool.options.database = 'postgres';
+  pool.options.password = 'password';
+  pool.options.port = 5432;
+}
 
 async function initDB() {
   try {

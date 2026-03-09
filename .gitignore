@@ -2,3 +2,4 @@ node_modules/*
 api_output_full_v2.txt
 api_output_full_v3.txt
 api_output_full.txt
+.env.example

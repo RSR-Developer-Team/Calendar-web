@@ -11,11 +11,10 @@ let recentResults = [];
 let historyData = {};
 
 // Determine backend URL
-// If running locally, connect to localhost:3000. Give priority to Render URL for GitHub Pages.
-const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+// Give priority to window.BACKEND_URL (provided by server /config.js)
+const BACKEND_URL = window.BACKEND_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3005'
-
-  : 'https://ws-rs-calendar.onrender.com'; // Backend URL provided by Render
+  : '');
 
 // Initialize Socket.io
 const socket = io(BACKEND_URL);
