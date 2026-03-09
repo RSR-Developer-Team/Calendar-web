@@ -156,10 +156,18 @@ app.get('/api/standings', async (req, res) => {
   }
 
   try {
-    const response = await fetch(`${emperorUrl}/api/championship/${champId}/standings.json`);
+    // Normalizar URL (quitar barras al final si las hay) para evitar el error 404 por doble barra
+    const baseUrl = emperorUrl.replace(/\/+$/, '');
+
+    // En Node 18+ (Fetch nativo), para ignorar certificados auto-firmados del VPS
+    // lo más directo es desactivar la verificación de TLS para esta petición.
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+    const fetchUrl = `${baseUrl}/api/championship/${champId}/standings.json`;
+    const response = await fetch(fetchUrl);
 
     if (!response.ok) {
-      throw new Error(`Emperor Servers API respondió con un error: ${response.status}`);
+      throw new Error(`Emperor Servers API respondió con un error: ${response.status} en ${fetchUrl}`);
     }
 
     const data = await response.json();

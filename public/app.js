@@ -453,11 +453,59 @@ async function init() {
   }
   try {
     const standingsResponse = await fetchAPI('standings');
-    // For now until we inspect the real JSON shape, let's keep empty arrays to avoid crashing
+    console.log("Emperor Standings Response:", standingsResponse);
+
     teamsData = [];
     driversData = [];
     resultsData = [];
-    console.log("Emperor Standings Response:", standingsResponse);
+
+    // Check if Emperor Servers returned HTML (API not public)
+    if (typeof standingsResponse === 'string' && standingsResponse.includes('<html')) {
+      console.warn('Emperor Servers returned HTML instead of JSON. Please enable Public Access -> Championships - Api Standings in your Server Manager.');
+      return;
+    }
+
+    if (standingsResponse && standingsResponse.DriverStandings) {
+      // Emperor Servers returns drivers grouped by class or an array of categories
+      // Assuming a generic structure based on the schema
+      Object.keys(standingsResponse.DriverStandings).forEach(className => {
+        const drivers = standingsResponse.DriverStandings[className];
+        if (Array.isArray(drivers)) {
+          drivers.forEach(entry => {
+            // Assetto Corsa generic Server Manager maps driver info inside Car.Driver
+            let teamName = entry.Car && entry.Car.Driver && entry.Car.Driver.Team ? entry.Car.Driver.Team : (entry.Car && entry.Car.Model ? entry.Car.Model : 'Independiente');
+            let teamId = teamName.toLowerCase().replace(/\s+/g, '-');
+
+            if (!teamsData.find(t => t.id === teamId)) {
+              teamsData.push({
+                id: teamId,
+                name: teamName,
+                color: `#${Math.floor(Math.random() * 16777215).toString(16).padStart(6, '0')}` // Random color for now
+              });
+            }
+
+            // Driver mapping
+            driversData.push({
+              id: entry.Car && entry.Car.Driver ? entry.Car.Driver.Guid : Math.random().toString(),
+              name: entry.Car && entry.Car.Driver ? entry.Car.Driver.Name : 'Desconocido',
+              number: entry.Car && entry.Car.Driver ? (entry.Car.Driver.CarNumber || Math.floor(Math.random() * 99)) : 99,
+              teamId: teamId,
+              _emperorTotalPoints: entry.Points || 0 // Save the points directly reported by the server
+            });
+          });
+        }
+      });
+    }
+
+    // Overriding renderStandings expected behavior since Emperor Servers gives us the final points directly
+    // If there are races/events in the response, we map them here:
+    if (standingsResponse && standingsResponse.Events) {
+      resultsData = standingsResponse.Events.map(event => ({
+        completed: true,
+        standings: [] // If we need granular results, implement later
+      }));
+    }
+
   } catch (e) {
     console.error("Error fetching standings:", e);
   }
@@ -519,7 +567,7 @@ function renderStandings() {
     const team = teamsData.find(t => t.id === d.teamId);
     return {
       ...d,
-      points: driverPoints[d.id],
+      points: d._emperorTotalPoints !== undefined ? d._emperorTotalPoints : driverPoints[d.id],
       teamName: team ? team.name : 'Independiente',
       teamColor: team ? team.color : '#fff'
     };
@@ -546,10 +594,17 @@ function renderStandings() {
   }).join('');
 
   // Sort Teams
+  // If Emperor API gives TeamStandings directly, we could use that, otherwise we sum driver points here:
   const sortedTeams = teamsData.map(t => {
+    // Sum points for all drivers in this team that have Emperor points
+    const aggregatedTeamPoints = driversData
+      .filter(d => d.teamId === t.id && d._emperorTotalPoints !== undefined)
+      .reduce((sum, d) => sum + d._emperorTotalPoints, 0);
+
     return {
       ...t,
-      points: teamPoints[t.id]
+      // Use existing reduce logic fallback if emperorTotalPoints are not used
+      points: aggregatedTeamPoints || teamPoints[t.id] || 0
     };
   }).sort((a, b) => b.points - a.points);
 

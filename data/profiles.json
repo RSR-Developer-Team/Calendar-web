@@ -1,0 +1,21 @@
+{
+    "drivers": {
+        "76561198000000000": {
+            "palmares": [
+                "Campeón RSR S1",
+                "Racha: 3 victorias"
+            ],
+            "bio": "Piloto apasionado por el Assetto Corsa desde sus inicios.",
+            "photo": "img/drivers/default.png"
+        }
+    },
+    "teams": {
+        "red-bull": {
+            "palmares": [
+                "Campeón de Constructores 2025"
+            ],
+            "bio": "Equipo con sede en Milton Keynes, dominando la era híbrida.",
+            "logo": "img/teams/default.png"
+        }
+    }
+}
