@@ -11,11 +11,10 @@ let recentResults = [];
 let historyData = {};
 
 // Determine backend URL
-// If running locally, connect to localhost:3000. Give priority to Render URL for GitHub Pages.
-const BACKEND_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+// Give priority to window.BACKEND_URL (provided by server /config.js)
+const BACKEND_URL = window.BACKEND_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   ? 'http://localhost:3005'
-
-  : 'https://ws-rs-calendar.onrender.com'; // Backend URL provided by Render
+  : '');
 
 // Initialize Socket.io
 const socket = io(BACKEND_URL);
@@ -78,6 +77,14 @@ async function fetchAPI(endpoint) {
     console.error(`Error fetching ${endpoint}:`, error);
     return null;
   }
+}
+
+function formatTime(ms) {
+  if (!ms || isNaN(ms)) return "--:--.---";
+  const minutes = Math.floor(ms / 60000);
+  const seconds = Math.floor((ms % 60000) / 1000);
+  const milliseconds = Math.floor(ms % 1000);
+  return `${minutes}:${String(seconds).padStart(2, '0')}.${String(milliseconds).padStart(3, '0')}`;
 }
 
 async function postAPI(endpoint, data = {}) {
@@ -208,7 +215,18 @@ function renderCircuitsGrid() {
     <div class="circuit-card ${isUsed ? 'used' : ''}" data-id="${circuit.id}" ${roundAttr}>
       <img src="img/circuits/${circuit.id}.svg" class="circuit-layout" alt="Trazado de ${circuit.name}" onerror="this.style.display='none'">
       <div class="circuit-name">${circuit.name}</div>
-      <div class="circuit-country">${circuit.country}</div>
+      <div class="circuit-info-row">
+        <div class="circuit-country-wrapper">
+          <img src="https://flagcdn.com/w40/${circuit.countryCode.toLowerCase()}.png" class="circuit-flag" alt="${circuit.country}" onerror="this.style.display='none'">
+          <span class="circuit-country">${circuit.country}</span>
+        </div>
+        <span class="circuit-laps">${circuit.laps || '--'} VUELTAS</span>
+      </div>
+      ${circuit.megaLink ? `
+        <a href="${circuit.megaLink}" target="_blank" class="circuit-download-btn" onclick="event.stopPropagation()">
+          <i class="fas fa-download"></i> DESCARGAR
+        </a>
+      ` : ''}
     </div>
   `}).join('');
 }
@@ -254,11 +272,14 @@ function renderCalendar() {
 
     const dateDisplay = roundDate.toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
 
+    const circuit = circuits.find(c => c.name === circuitName || c.id === raffle?.circuitId);
+    const flagHTML = circuit && circuit.countryCode ? `<img src="https://flagcdn.com/w20/${circuit.countryCode.toLowerCase()}.png" class="calendar-flag" alt="${circuit.country}"> ` : '';
+
     rows.push(`
       <tr>
         <td>${dateDisplay}</td>
         <td><span class="status-badge ${statusClass}">${status}</span></td>
-        <td class="circuit-name-cell ${circuitClass}">${circuitName}</td>
+        <td class="circuit-name-cell ${circuitClass}">${flagHTML}${circuitName}</td>
       </tr>
     `);
   });
@@ -355,7 +376,10 @@ function showResult(circuit) {
   let detailsHTML = `
     <div class="detail-item">
       <span class="detail-label">PAÍS</span>
-      <span class="detail-value">${circuit.country}</span>
+      <span class="detail-value">
+        <img src="https://flagcdn.com/w40/${circuit.countryCode.toLowerCase()}.png" class="result-flag" alt="${circuit.country}">
+        ${circuit.country}
+      </span>
     </div>
     <div class="detail-item">
       <span class="detail-label">LONGITUD</span>
@@ -607,6 +631,7 @@ async function init() {
   countdownInterval = setInterval(updateCountdown, 1000);
 
   checkExistingRaffle();
+  renderLapTimes();
 }
 
 document.addEventListener('DOMContentLoaded', init);
@@ -620,11 +645,52 @@ function switchStandingsTab(tabName) {
     document.getElementById('tabDrivers').classList.add('active');
     document.getElementById('driversStandingsContainer').classList.remove('hidden');
     document.getElementById('driversStandingsContainer').classList.add('active');
-  } else {
+  } else if (tabName === 'teams') {
     document.getElementById('tabTeams').classList.add('active');
     document.getElementById('teamsStandingsContainer').classList.remove('hidden');
     document.getElementById('teamsStandingsContainer').classList.add('active');
+  } else if (tabName === 'laptimes') {
+    document.getElementById('tabLaptimes').classList.add('active');
+    document.getElementById('laptimesStandingsContainer').classList.remove('hidden');
+    document.getElementById('laptimesStandingsContainer').classList.add('active');
+    renderLapTimes();
   }
+}
+
+async function renderLapTimes() {
+  const laptimesBody = document.getElementById('laptimesBody');
+  if (!laptimesBody) return;
+
+  const data = await fetchAPI('laptimes');
+  if (!data || !data.laptimes) {
+    laptimesBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 20px;">No hay tiempos registrados aún</td></tr>';
+    return;
+  }
+
+  laptimesBody.innerHTML = data.laptimes.map((lt, index) => {
+    const pos = index + 1;
+    const posClass = pos <= 3 ? `pos-${pos}` : '';
+
+    // Get team color if available
+    const team = teamsData.find(t => t.id === lt.team.toLowerCase().replace(/\s+/g, '-')) ||
+      teamsData.find(t => t.name === lt.team);
+    const color = team ? team.color : '#fff';
+
+    return `
+      <tr>
+        <td><span class="pos-badge ${posClass}">${pos}</span></td>
+        <td>
+          <div class="driver-name">
+            <div class="color-bar" style="background-color: ${color}"></div>
+            <span>${lt.driverName}</span>
+          </div>
+        </td>
+        <td style="font-size: 0.85rem; color: var(--text-secondary);">${lt.car}</td>
+        <td style="font-family: 'Orbitron', sans-serif; font-size: 0.85rem;">${lt.track}</td>
+        <td class="points-cell">${formatTime(lt.bestLap)}</td>
+      </tr>
+    `;
+  }).join('');
 }
 
 function renderStandings() {
