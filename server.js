@@ -144,6 +144,32 @@ app.get('/api/config', (req, res) => {
   res.json(config);
 });
 
+app.get('/api/standings', async (req, res) => {
+  const configPath = path.join(__dirname, 'data', 'config.json');
+  const config = readJSON(configPath) || {};
+
+  const emperorUrl = config.emperorServerUrl;
+  const champId = config.championshipId;
+
+  if (!emperorUrl || !champId || champId === "insert_championship_id_here") {
+    return res.status(400).json({ error: 'Falta configurar emperorServerUrl o championshipId en config.json' });
+  }
+
+  try {
+    const response = await fetch(`${emperorUrl}/api/championship/${champId}/standings.json`);
+
+    if (!response.ok) {
+      throw new Error(`Emperor Servers API respondió con un error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    console.error('Error al conectar con Emperor Servers API:', error);
+    res.status(500).json({ error: 'Error interno conectando con Emperor Servers' });
+  }
+});
+
 server.listen(PORT, () => {
   console.log(`🏎️ RSR Dark Race server running at http://localhost:${PORT}`);
 });

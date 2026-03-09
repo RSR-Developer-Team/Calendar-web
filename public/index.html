@@ -133,6 +133,46 @@
         </table>
       </div>
     </section>
+
+    <section class="standings-section">
+      <h2 class="section-title">
+        <span class="title-line"></span>
+        CLASIFICACIÓN GENERAL
+        <span class="title-line"></span>
+      </h2>
+
+      <div class="standings-tabs">
+        <button class="standings-tab active" id="tabDrivers" onclick="switchStandingsTab('drivers')">Pilotos</button>
+        <button class="standings-tab" id="tabTeams" onclick="switchStandingsTab('teams')">Equipos</button>
+      </div>
+
+      <div class="standings-container active" id="driversStandingsContainer">
+        <table class="calendar-table standings-table">
+          <thead>
+            <tr>
+              <th>POS</th>
+              <th>PILOTO</th>
+              <th class="hide-mobile">EQUIPO</th>
+              <th>PUNTOS</th>
+            </tr>
+          </thead>
+          <tbody id="driversBody"></tbody>
+        </table>
+      </div>
+
+      <div class="standings-container hidden" id="teamsStandingsContainer">
+        <table class="calendar-table standings-table">
+          <thead>
+            <tr>
+              <th>POS</th>
+              <th>EQUIPO</th>
+              <th>PUNTOS</th>
+            </tr>
+          </thead>
+          <tbody id="teamsBody"></tbody>
+        </table>
+      </div>
+    </section>
   </main>
 
   <footer class="footer">

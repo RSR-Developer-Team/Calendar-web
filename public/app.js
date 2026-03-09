@@ -1,6 +1,9 @@
 let config = null;
 let circuits = [];
 let rafflesData = null;
+let teamsData = [];
+let driversData = [];
+let resultsData = [];
 let countdownInterval = null;
 let hasRevealedThisSession = false;
 
@@ -448,9 +451,20 @@ async function init() {
   if (rafflesData) {
     document.getElementById('currentRound').textContent = rafflesData.currentRound || 1;
   }
+  try {
+    const standingsResponse = await fetchAPI('standings');
+    // For now until we inspect the real JSON shape, let's keep empty arrays to avoid crashing
+    teamsData = [];
+    driversData = [];
+    resultsData = [];
+    console.log("Emperor Standings Response:", standingsResponse);
+  } catch (e) {
+    console.error("Error fetching standings:", e);
+  }
 
   renderCircuitsGrid();
   renderCalendar();
+  renderStandings();
 
   updateCountdown();
   countdownInterval = setInterval(updateCountdown, 1000);
@@ -459,3 +473,102 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+function switchStandingsTab(tabName) {
+  document.querySelectorAll('.standings-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.standings-container').forEach(c => c.classList.remove('active', 'hidden'));
+  document.querySelectorAll('.standings-container').forEach(c => c.classList.add('hidden'));
+
+  if (tabName === 'drivers') {
+    document.getElementById('tabDrivers').classList.add('active');
+    document.getElementById('driversStandingsContainer').classList.remove('hidden');
+    document.getElementById('driversStandingsContainer').classList.add('active');
+  } else {
+    document.getElementById('tabTeams').classList.add('active');
+    document.getElementById('teamsStandingsContainer').classList.remove('hidden');
+    document.getElementById('teamsStandingsContainer').classList.add('active');
+  }
+}
+
+function renderStandings() {
+  const driverPoints = {};
+  const teamPoints = {};
+
+  // Initialize
+  driversData.forEach(d => driverPoints[d.id] = 0);
+  teamsData.forEach(t => teamPoints[t.id] = 0);
+
+  // Aggregate points
+  resultsData.forEach(race => {
+    if (race.completed && race.standings) {
+      race.standings.forEach(result => {
+        if (driverPoints[result.driverId] !== undefined) {
+          driverPoints[result.driverId] += result.points;
+
+          const driver = driversData.find(d => d.id === result.driverId);
+          if (driver && teamPoints[driver.teamId] !== undefined) {
+            teamPoints[driver.teamId] += result.points;
+          }
+        }
+      });
+    }
+  });
+
+  // Sort Drivers
+  const sortedDrivers = driversData.map(d => {
+    const team = teamsData.find(t => t.id === d.teamId);
+    return {
+      ...d,
+      points: driverPoints[d.id],
+      teamName: team ? team.name : 'Independiente',
+      teamColor: team ? team.color : '#fff'
+    };
+  }).sort((a, b) => b.points - a.points);
+
+  // Render Drivers
+  const driversBody = document.getElementById('driversBody');
+  driversBody.innerHTML = sortedDrivers.map((d, index) => {
+    const pos = index + 1;
+    const posClass = pos <= 3 ? `pos-${pos}` : '';
+    return `
+      <tr>
+        <td><span class="pos-badge ${posClass}">${pos}</span></td>
+        <td>
+          <div class="driver-name">
+            <div class="color-bar" style="background-color: ${d.teamColor}"></div>
+            <span>${d.name} <span style="color: var(--text-muted); font-size: 0.8em">#${d.number}</span></span>
+          </div>
+        </td>
+        <td class="hide-mobile" style="color: ${d.teamColor}">${d.teamName}</td>
+        <td class="points-cell">${d.points}</td>
+      </tr>
+    `;
+  }).join('');
+
+  // Sort Teams
+  const sortedTeams = teamsData.map(t => {
+    return {
+      ...t,
+      points: teamPoints[t.id]
+    };
+  }).sort((a, b) => b.points - a.points);
+
+  // Render Teams
+  const teamsBody = document.getElementById('teamsBody');
+  teamsBody.innerHTML = sortedTeams.map((t, index) => {
+    const pos = index + 1;
+    const posClass = pos <= 3 ? `pos-${pos}` : '';
+    return `
+      <tr>
+        <td><span class="pos-badge ${posClass}">${pos}</span></td>
+        <td>
+          <div class="team-name">
+            <div class="color-bar" style="background-color: ${t.color}"></div>
+            <span style="color: ${t.color}; font-weight: bold;">${t.name}</span>
+          </div>
+        </td>
+        <td class="points-cell">${t.points}</td>
+      </tr>
+    `;
+  }).join('');
+}
