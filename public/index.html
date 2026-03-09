@@ -10,6 +10,7 @@
     rel="stylesheet">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
 
 <body>
@@ -144,6 +145,7 @@
       <div class="standings-tabs">
         <button class="standings-tab active" id="tabDrivers" onclick="switchStandingsTab('drivers')">Pilotos</button>
         <button class="standings-tab" id="tabTeams" onclick="switchStandingsTab('teams')">Equipos</button>
+        <button class="standings-tab" id="tabLaptimes" onclick="switchStandingsTab('laptimes')">Vueltas Rápidas</button>
       </div>
 
       <div class="standings-container active" id="driversStandingsContainer">
@@ -170,6 +172,21 @@
             </tr>
           </thead>
           <tbody id="teamsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="standings-container hidden" id="laptimesStandingsContainer">
+        <table class="calendar-table standings-table">
+          <thead>
+            <tr>
+              <th>POS</th>
+              <th>PILOTO</th>
+              <th>COCHE</th>
+              <th>CIRCUITO</th>
+              <th>TIEMPO</th>
+            </tr>
+          </thead>
+          <tbody id="laptimesBody"></tbody>
         </table>
       </div>
     </section>

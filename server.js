@@ -403,6 +403,58 @@ app.get('/api/results/:guid', async (req, res) => {
   }
 });
 
+app.get('/api/laptimes', async (req, res) => {
+  try {
+    // We aggregate from the cache/DB. Since refreshResultCache already populates raceResultsCache
+    // and the DB, we can use the cache for speed or query the DB for consistency.
+    // Let's use the DB if available, fallback to cache.
+    let historicalResults = [];
+    try {
+      const dbResults = await pool.query('SELECT * FROM race_results');
+      historicalResults = dbResults.rows.map(r => ({
+        track: r.track,
+        results: r.results
+      }));
+    } catch (e) {
+      historicalResults = raceResultsCache;
+    }
+
+    const lapTimesMap = {};
+
+    historicalResults.forEach(race => {
+      const trackName = race.track;
+      if (!race.results) return;
+
+      race.results.forEach(entry => {
+        if (!entry.Driver || !entry.Driver.Name || !entry.BestLap) return;
+
+        const driverId = entry.Driver.Guid || entry.Driver.Name;
+        const lapTime = entry.BestLap;
+        const carModel = entry.Car?.Model || entry.CarModel || "N/A";
+
+        const key = `${driverId}_${trackName}`;
+
+        if (!lapTimesMap[key] || lapTime < lapTimesMap[key].bestLap) {
+          lapTimesMap[key] = {
+            driverId: driverId,
+            driverName: entry.Driver.Name,
+            track: trackName,
+            bestLap: lapTime,
+            car: carModel,
+            team: entry.Driver.Team || "Independiente"
+          };
+        }
+      });
+    });
+
+    const laptimes = Object.values(lapTimesMap).sort((a, b) => a.bestLap - b.bestLap);
+    res.json({ laptimes });
+  } catch (error) {
+    console.error('Error fetching laptimes:', error);
+    res.status(500).json({ error: 'Error processing lap times' });
+  }
+});
+
 app.get('/api/profiles', (req, res) => {
   const profilesPath = path.join(__dirname, 'data', 'profiles.json');
   const data = readJSON(profilesPath) || { drivers: {}, teams: {} };
