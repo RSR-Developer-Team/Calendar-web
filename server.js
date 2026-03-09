@@ -6,6 +6,7 @@ const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const cron = require('node-cron');
+const { Pool } = require('pg');
 
 const app = express();
 const server = http.createServer(app);
@@ -16,7 +17,8 @@ const io = new Server(server, {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3005;
+
 
 app.use(cors());
 app.use(express.json());
@@ -33,6 +35,34 @@ function readJSON(file) {
 function writeJSON(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2));
 }
+
+// --- Database Setup ---
+const pool = new Pool({
+  user: 'postgres',
+  host: 'localhost',
+  database: 'postgres', // Default db, user might need to change this
+  password: 'password', // Default password for local dev
+  port: 5432,
+});
+
+async function initDB() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS race_results (
+        id TEXT PRIMARY KEY,
+        track TEXT,
+        date TIMESTAMPTZ,
+        championship_id TEXT,
+        results JSONB
+      )
+    `);
+    console.log('✅ Base de datos conectada y tabla race_results lista.');
+  } catch (err) {
+    console.error('❌ Error inicializando DB:', err.message);
+  }
+}
+
+initDB();
 
 io.on('connection', (socket) => {
   console.log('Un cliente se ha conectado:', socket.id);
@@ -144,7 +174,144 @@ app.get('/api/config', (req, res) => {
   res.json(config);
 });
 
+// --- Background Race Result Cache ---
+let raceResultsCache = [];
+let isRefreshingCache = false;
+
+async function refreshResultCache() {
+  if (isRefreshingCache) return;
+  isRefreshingCache = true;
+
+  const configPath = path.join(__dirname, 'data', 'config.json');
+  const config = readJSON(configPath) || {};
+  const emperorUrl = config.emperorServerUrl;
+  const mainChampId = config.championshipId;
+  const historyChamps = (config.historicalChampionships || []).map(c => c.id);
+  const allChampIds = [mainChampId, ...historyChamps].filter(id => id && id !== "insert_championship_id_here");
+
+  if (!emperorUrl || allChampIds.length === 0) {
+    isRefreshingCache = false;
+    return;
+  }
+
+  console.log(`[CACHE] Refrescando caché de resultados para ${allChampIds.length} campeonatos...`);
+
+  try {
+    const baseUrl = emperorUrl.replace(/\/+$/, '');
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+    // 1. Get the list of recent results
+    const response = await fetch(`${baseUrl}/api/results/list.json?q=RACE&sort=date`);
+    if (!response.ok) throw new Error("No se pudo obtener la lista de resultados");
+
+    const data = await response.json();
+    const latestRaces = data.results || [];
+
+    // We'll check the last 30 races to find those belonging to our championships
+    const filteredRaces = [];
+
+    // Limits the number of concurrent fetches to avoid overwhelming the server
+    for (const race of latestRaces.slice(0, 30)) {
+      try {
+        const resPath = race.results_json_url;
+        // The resPath already starts with /results/download/, so we don't need /api prefix
+        // based on manual testing.
+        const resResponse = await fetch(`${baseUrl}${resPath}`);
+        if (!resResponse.ok) {
+          console.warn(`[CACHE] No se pudo obtener detalle para ${resPath}: ${resResponse.status}`);
+          continue;
+        }
+
+        const resJson = await resResponse.json();
+        const raceChampId = resJson.ChampionshipID;
+
+        if (raceChampId && allChampIds.includes(raceChampId)) {
+          // It's a championship race!
+          filteredRaces.push({
+            id: race.results_json_url, // Use the URL as ID since 'id' is missing
+            track: race.track,
+            date: race.date,
+            championshipId: raceChampId,
+            results: resJson.Result || []
+          });
+
+          if (filteredRaces.length >= 20) break; // We have enough for recent history
+        }
+      } catch (e) {
+        console.error(`Error procesando carrera ${race.id}:`, e);
+      }
+    }
+
+    raceResultsCache = filteredRaces;
+
+    // Opt-in DB migration (keeping it simple for now)
+    for (const race of filteredRaces) {
+      try {
+        await pool.query(
+          'INSERT INTO race_results (id, track, date, championship_id, results) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id) DO UPDATE SET results = $5',
+          [race.id, race.track, race.date, race.championshipId, JSON.stringify(race.results)]
+        );
+      } catch (e) {
+        // Silent error for now as requested to keep it "empty/pre-configured"
+      }
+    }
+
+    console.log(`[CACHE] Caché actualizado. Encontradas ${raceResultsCache.length} carreras de campeonato.`);
+  } catch (error) {
+    console.error('[CACHE] Error actualizando caché:', error);
+  } finally {
+    isRefreshingCache = false;
+  }
+}
+
+// Initial refresh and then every 10 minutes
+refreshResultCache();
+cron.schedule('*/10 * * * *', refreshResultCache);
+
+app.get('/api/entrants', async (req, res) => {
+  const configPath = path.join(__dirname, 'data', 'config.json');
+  const config = readJSON(configPath) || {};
+  const emperorUrl = config.emperorServerUrl;
+  const champId = config.championshipId;
+
+  if (!emperorUrl || !champId) {
+    return res.status(400).json({ error: 'Falta configuración' });
+  }
+
+  try {
+    const baseUrl = emperorUrl.replace(/\/+$/, '');
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+    const fetchUrl = `${baseUrl}/championship/${champId}`;
+    const response = await fetch(fetchUrl);
+    if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+    const html = await response.text();
+    const entrantsSection = html.match(/id="entrants"[\s\S]*?<\/tbody>/);
+
+    const entrants = [];
+    if (entrantsSection) {
+      const rows = entrantsSection[0].match(/<tr[\s\S]*?<\/tr>/g);
+      if (rows) {
+        rows.forEach(row => {
+          const cols = row.match(/<td>([\s\S]*?)<\/td>/g);
+          if (cols && cols.length >= 3) {
+            const name = cols[1].replace(/<[\s\S]*?>/g, '').trim();
+            const team = cols[2].replace(/<[\s\S]*?>/g, '').trim();
+            entrants.push({ Name: name, Team: team });
+          }
+        });
+      }
+    }
+    res.json({ Entrants: entrants });
+  } catch (error) {
+    console.error('Error scraping entrants:', error);
+    res.status(500).json({ error: 'Error scraping entrants' });
+  }
+});
+
 app.get('/api/standings', async (req, res) => {
+
   const configPath = path.join(__dirname, 'data', 'config.json');
   const config = readJSON(configPath) || {};
 
@@ -175,6 +342,122 @@ app.get('/api/standings', async (req, res) => {
   } catch (error) {
     console.error('Error al conectar con Emperor Servers API:', error);
     res.status(500).json({ error: 'Error interno conectando con Emperor Servers' });
+  }
+});
+
+app.get('/api/results', async (req, res) => {
+  try {
+    const dbResults = await pool.query('SELECT * FROM race_results ORDER BY date DESC LIMIT 20');
+    // Map back to the expected format
+    const results = dbResults.rows.map(r => ({
+      id: r.id,
+      track: r.track,
+      date: r.date,
+      championshipId: r.championship_id,
+      results: r.results
+    }));
+    res.json({ results });
+  } catch (e) {
+    // Fallback to cache if DB fails
+    res.json({ results: raceResultsCache });
+  }
+});
+
+app.get('/api/results/:guid', async (req, res) => {
+  const guid = req.params.guid;
+
+  try {
+    // Search directly in JSONB for efficiency
+    const dbResults = await pool.query(`
+      SELECT * FROM race_results 
+      WHERE results @? '$[*] ? (@.Driver.Guid == $guid)'
+      ORDER BY date DESC LIMIT 10
+    `, { guid });
+
+    const driverResults = dbResults.rows.map(r => {
+      const driverResult = r.results.find(res => res.Driver && res.Driver.Guid === guid);
+      return {
+        id: r.id,
+        track: r.track,
+        date: r.date,
+        pos: r.results.indexOf(driverResult) + 1,
+        championshipId: r.championship_id
+      };
+    });
+    res.json({ results: driverResults });
+  } catch (e) {
+    // Fallback exactly like before
+    const driverResults = raceResultsCache.map(race => {
+      const driverResult = race.results.find(r => r.Driver && r.Driver.Guid === guid);
+      if (!driverResult) return null;
+
+      return {
+        id: race.id,
+        track: race.track,
+        date: race.date,
+        pos: race.results.indexOf(driverResult) + 1,
+        championshipId: race.championshipId
+      };
+    }).filter(Boolean).slice(0, 10);
+    res.json({ results: driverResults });
+  }
+});
+
+app.get('/api/profiles', (req, res) => {
+  const profilesPath = path.join(__dirname, 'data', 'profiles.json');
+  const data = readJSON(profilesPath) || { drivers: {}, teams: {} };
+  res.json(data);
+});
+
+app.get('/api/history', async (req, res) => {
+  const configPath = path.join(__dirname, 'data', 'config.json');
+  const config = readJSON(configPath) || {};
+  const emperorUrl = config.emperorServerUrl;
+  const historyChamps = config.historicalChampionships || [];
+
+  if (!emperorUrl || !historyChamps.length) {
+    return res.json({ history: {} });
+  }
+
+  const results = {};
+
+  try {
+    const baseUrl = emperorUrl.replace(/\/+$/, '');
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+
+    for (const champ of historyChamps) {
+      try {
+        const response = await fetch(`${baseUrl}/api/championship/${champ.id}/standings.json`);
+        if (!response.ok) continue;
+
+        const data = await response.json();
+        if (data && data.DriverStandings) {
+          Object.keys(data.DriverStandings).forEach(className => {
+            const standings = data.DriverStandings[className];
+            standings.forEach((entry, index) => {
+              if (entry.Car && entry.Car.Driver) {
+                const guid = entry.Car.Driver.Guid;
+                if (!results[guid]) results[guid] = [];
+
+                results[guid].push({
+                  championshipName: champ.name,
+                  pos: index + 1,
+                  points: entry.Points || 0,
+                  team: entry.Car.Driver.Team || entry.Car.Model || "Independiente"
+                });
+              }
+            });
+          });
+        }
+      } catch (e) {
+        console.error(`Error fetching history for ${champ.id}:`, e);
+      }
+    }
+
+    res.json({ history: results });
+  } catch (error) {
+    console.error('Error al obtener histórico:', error);
+    res.status(500).json({ error: 'Error al conectar con servidor histórico' });
   }
 });
 

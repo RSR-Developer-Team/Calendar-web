@@ -1,5 +1,15 @@
 {
   "raffleTime": "20:00",
+  "historicalChampionships": [
+    {
+      "id": "741558b0-c30a-4316-8e70-c54656214142",
+      "name": "Temporada 2025 Final"
+    },
+    {
+      "id": "1e8f2d0e-f5a2-4ee3-9b38-3a2e43d52396",
+      "name": "Campeonato 2025"
+    }
+  ],
   "totalRounds": 13,
   "championshipName": "RSR Championship",
   "emperorServerUrl": "https://de5.assettohosting.com:50140/",

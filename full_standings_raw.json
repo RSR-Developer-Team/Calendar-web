@@ -1,0 +1,372 @@
+{
+  "DriverStandings": {
+    "": [
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 10,
+          "Driver": {
+            "Guid": "76561198131494167",
+            "GuidsList": [
+              "76561198131494167"
+            ],
+            "Name": "Alejandro Roc",
+            "Nation": "ESP",
+            "Team": "Kick Sauber Motorsport",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Sauber_C45_5_Bortoletto",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 61,
+          "MaxPing": 65
+        },
+        "Teams": {
+          "Kick Sauber Motorsport": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 27
+          }
+        },
+        "Points": 27,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 6,
+          "Driver": {
+            "Guid": "76561198204076788",
+            "GuidsList": [
+              "76561198204076788"
+            ],
+            "Name": "Alejandro Castellanos",
+            "Nation": "ESP",
+            "Team": "Haas F1 Team",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Haas_VF-25_31_Oco",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 21,
+          "MaxPing": 27
+        },
+        "Teams": {
+          "Haas F1 Team": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 25
+          }
+        },
+        "Points": 25,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 8,
+          "Driver": {
+            "Guid": "76561199273523635",
+            "GuidsList": [
+              "76561199273523635"
+            ],
+            "Name": "Israel Mira",
+            "Nation": "ESP",
+            "Team": "Williams F1 Team",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Williams_FW47_55_Sainz",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 50,
+          "MaxPing": 51
+        },
+        "Teams": {
+          "Williams F1 Team": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 22
+          }
+        },
+        "Points": 22,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 13,
+          "Driver": {
+            "Guid": "76561198304887883",
+            "GuidsList": [
+              "76561198304887883"
+            ],
+            "Name": "Juanlu Moreno",
+            "Nation": "ESP",
+            "Team": "Red Bull Racing",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Red_Bull_RB21_1_Verstappen",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 41,
+          "MaxPing": 55
+        },
+        "Teams": {
+          "Red Bull Racing": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 19
+          }
+        },
+        "Points": 19,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 11,
+          "Driver": {
+            "Guid": "76561198834542468",
+            "GuidsList": [
+              "76561198834542468"
+            ],
+            "Name": "Jesus Orellana",
+            "Nation": "ESP",
+            "Team": "Red Bull Racing",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Red_Bull_RB21_22_Tsunoda",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 56,
+          "MaxPing": 59
+        },
+        "Teams": {
+          "Red Bull Racing": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 17
+          }
+        },
+        "Points": 17,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 9,
+          "Driver": {
+            "Guid": "76561198043732571",
+            "GuidsList": [
+              "76561198043732571"
+            ],
+            "Name": "Nacho Brum",
+            "Nation": "ESP",
+            "Team": "Kick Sauber Motorsport",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Sauber_C45_27_Hulkenberg",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 53,
+          "MaxPing": 57
+        },
+        "Teams": {
+          "Kick Sauber Motorsport": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 15
+          }
+        },
+        "Points": 15,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 2,
+          "Driver": {
+            "Guid": "76561198770409179",
+            "GuidsList": [
+              "76561198770409179"
+            ],
+            "Name": "Cristian Gomez",
+            "Nation": "COL",
+            "Team": "Ferrari F1 Team",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Ferrari_SF-25_16_Leclerc",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 36,
+          "MaxPing": 40
+        },
+        "Teams": {
+          "Ferrari F1 Team": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 14
+          }
+        },
+        "Points": 14,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 17,
+          "Driver": {
+            "Guid": "76561198004672947",
+            "GuidsList": [
+              "76561198004672947"
+            ],
+            "Name": "Fernando Mata",
+            "Nation": "ESP",
+            "Team": "Aston Martin F1 Team",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Aston_Martin_AMR25_14_Alonso",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 53,
+          "MaxPing": 57
+        },
+        "Teams": {
+          "Aston Martin F1 Team": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 13
+          }
+        },
+        "Points": 13,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 3,
+          "Driver": {
+            "Guid": "76561199200470380",
+            "GuidsList": [
+              "76561199200470380"
+            ],
+            "Name": "Enrique Heredia",
+            "Nation": "ESP",
+            "Team": "Mercedes F1 Team",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "Mercedes_W16_12_Antonelli",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 58,
+          "MaxPing": 92
+        },
+        "Teams": {
+          "Mercedes F1 Team": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 12
+          }
+        },
+        "Points": 12,
+        "IgnoredEventIDs": {}
+      },
+      {
+        "Car": {
+          "BallastKG": 0,
+          "CarId": 4,
+          "Driver": {
+            "Guid": "76561198805833834",
+            "GuidsList": [
+              "76561198805833834"
+            ],
+            "Name": "Juanjo Camacho",
+            "Nation": "PLA",
+            "Team": "McLaren F1 Team",
+            "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0"
+          },
+          "Model": "vrc_formula_alpha_2025_csp",
+          "Restrictor": 0,
+          "Skin": "McLaren_MCL39_4_Norris",
+          "ClassID": "5af1d368-658a-4cbc-8972-5861654c69b0",
+          "MinPing": 60,
+          "MaxPing": 61
+        },
+        "Teams": {
+          "McLaren F1 Team": {
+            "NumEvents": 1,
+            "EventIDs": [
+              "7a6be51b-d5d2-499d-9774-b5bd8ed2a860"
+            ],
+            "Points": 11
+          }
+        },
+        "Points": 11,
+        "IgnoredEventIDs": {}
+      }
+    ]
+  },
+  "TeamStandings": {
+    "": [
+      {
+        "Team": "Kick Sauber Motorsport",
+        "Points": 42
+      },
+      {
+        "Team": "Red Bull Racing",
+        "Points": 36
+      },
+      {
+        "Team": "Haas F1 Team",
+        "Points": 25
+      },
+      {
+        "Team": "Williams F1 Team",
+        "Points": 22
+      },
+      {
+        "Team": "Ferrari F1 Team",
+        "Points": 14
+      },
+      {
+        "Team": "Aston Martin F1 Team",
+        "Points": 13
+      },
+      {
+        "Team": "Mercedes F1 Team",
+        "Points": 12
+      },
+      {
+        "Team": "McLaren F1 Team",
+        "Points": 11
+      }
+    ]
+  }
+}

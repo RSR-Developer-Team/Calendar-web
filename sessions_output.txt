@@ -1,0 +1,4 @@
+Checking: https://de5.assettohosting.com:50140/api/championship/7b6aaf22-64d2-4008-b718-b6cf2c54a6b7/sessions.json
+Not found: https://de5.assettohosting.com:50140/api/championship/7b6aaf22-64d2-4008-b718-b6cf2c54a6b7/sessions.json
+Checking: https://de5.assettohosting.com:50140/api/championship/7b6aaf22-64d2-4008-b718-b6cf2c54a6b7/detail.json
+Not found: https://de5.assettohosting.com:50140/api/championship/7b6aaf22-64d2-4008-b718-b6cf2c54a6b7/detail.json
